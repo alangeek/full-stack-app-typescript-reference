@@ -34,6 +34,26 @@ class UsersController {
       prisma.$disconnect()
     }
   }
+
+  async find(id: number) {
+    const prisma = new PrismaClient()
+    try {
+      return await prisma.user.findUnique({
+        where: {
+          id: id
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      })
+    } catch (e) {
+      throw e
+    } finally {
+      prisma.$disconnect()
+    }
+  }
 }
 
 export default new UsersController()

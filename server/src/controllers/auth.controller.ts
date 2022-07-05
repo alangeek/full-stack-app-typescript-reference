@@ -19,10 +19,8 @@ class AuthController {
         }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' })
         return token
       }
-
     }
     return undefined
-
   }
 }
 
