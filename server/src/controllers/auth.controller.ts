@@ -1,4 +1,5 @@
 import { User } from "@prisma/client";
+import * as jwt from 'jsonwebtoken'
 
 import { checkPassword } from './../utils/auth';
 import usersControllers from "./users.controllers";
@@ -13,7 +14,10 @@ class AuthController {
     if (user) {
 
       if (await checkPassword(password, user.password)) {
-        return user
+        const token = jwt.sign({
+          id: user.id
+        }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' })
+        return token
       }
 
     }
