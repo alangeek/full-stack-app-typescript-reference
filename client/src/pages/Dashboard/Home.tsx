@@ -5,16 +5,16 @@ import { Header } from "../../components/Header"
 import { SearchBar } from "../../components/SearchBar"
 import { BoxClients } from "../../components/BoxClients"
 import { AtSignIcon, InfoOutlineIcon, PhoneIcon } from "@chakra-ui/icons"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 let ids = 1
 
 export type Client = {
   id: number;
-  name: string
-  email: string
-  phone: string
+  name: string;
+  email: string;
+  phone: string;
 }
 
 export const Home = () => {
@@ -24,6 +24,23 @@ export const Home = () => {
   const [clients, setClients] = useState<Client[]>([])
   const [editClients, setEditClients] = useState<Client | null>()
   const navigate = useNavigate()
+  const [user, setUser] = useState<any | null>(null)
+
+  useEffect(() => {
+    fetch('http://localhost:3001/v1/users/me', { 
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }).then(async (res) => {
+      const json = await res.json()
+      if(res.ok) {
+        setUser(json.user)
+      } else {
+        console.log(json.message)
+      }
+    }).catch(e => console.log(e))
+  },[])
  
   const save = (data: any) => {
     ModalAddClient.onClose()
@@ -73,7 +90,7 @@ export const Home = () => {
       <Header  onLogout={logout}/>
      <Container maxW='container.lg'>
       <Stack mt={4}>
-        
+        <Text>{user?.name || '-'} ({user?.email || '-'})</Text>
         <SearchBar />
         <Flex justifyContent='flex-end'>
           <Button type='button' variant='solid' colorScheme='twitter' onClick={ModalAddClient.onOpen}>
