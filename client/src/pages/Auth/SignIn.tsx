@@ -1,22 +1,58 @@
 import {
-  Box, Button, Flex, FormControl, FormHelperText, Heading, Image, Input, InputGroup, InputLeftElement, Stack, Text,
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box, 
+  Button, 
+  CloseButton, 
+  Flex, 
+  FormControl, 
+  FormHelperText, 
+  Heading, 
+  Image, 
+  Input, 
+  InputGroup, 
+  InputLeftElement, 
+  Stack, 
+  Text,
 } from '@chakra-ui/react';
 import { AtSignIcon, LockIcon } from '@chakra-ui/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm} from 'react-hook-form'
 
 import logo from '../../assets/logo.svg';
+import { useState } from 'react';
 
 export function SignIn() {
   const {register, handleSubmit} = useForm()
   const navigate = useNavigate()
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const login = () => {
+  const login = (data: any) => {
     // verificar se os dados de email e senha foram digitados
     // requisição para o backend
     // em caso de sucesso, ir para a rota home
-    localStorage.setItem('token', 'token')
-    navigate('/home')
+    setErrorMessage('')
+    fetch('http://localhost:3001/v1/sign-in', {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "POST",
+      body: JSON.stringify(data)
+    }).then(async (res) => {
+      const json = await res.json()
+      if(res.ok) {
+        localStorage.setItem('token', json.token)
+        navigate('/home')
+      } else {
+        console.log("Erro", json.message)
+        setErrorMessage(json.message)
+      }
+    }).catch((e) => {
+      console.log("Exception", e)
+      setErrorMessage(e)
+    })
   }
   
   return (
@@ -34,10 +70,27 @@ export function SignIn() {
         justifyContent="center"
         alignItems="center"
       >
+        
         <Image src={logo} alt="Logo" boxSize="80px" objectFit="contain" />
-        <Heading>Login</Heading>
+        <Heading>Faça seu login na plataforma</Heading>
 
-        <Box minW={{ base: '90%', md: '470px' }}>
+        {errorMessage.length > 0 ? ( 
+          <Alert status='error'>
+            <AlertIcon />
+            <AlertTitle mr={2}>Erro: </AlertTitle>
+            <AlertDescription>
+              {errorMessage}
+            </AlertDescription>
+            <CloseButton 
+              position='absolute' 
+              right='8px' 
+              top='8px'
+              onClick={() => setErrorMessage('')}
+            />
+          </Alert> 
+        ): null}
+
+        <Box minW={{ base: '90%', md: '570px' }}>
           <form onSubmit={handleSubmit(login)}>
             <Stack
               spacing={4}
@@ -82,6 +135,8 @@ export function SignIn() {
             <Text color="blue.700" as="span">Inscreva-se agora</Text>
           </Link>
         </Box>
+
+       
       </Stack>
     </Flex>
   );
