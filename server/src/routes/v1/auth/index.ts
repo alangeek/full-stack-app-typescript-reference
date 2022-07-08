@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express'
 
 
 import authController from '../../../controllers/auth.controller'
-import usersControllers from '../../../controllers/users.controllers'
+import usersControllers from '../../../controllers/user.controllers'
 
 const router = express.Router()
 
@@ -29,7 +29,7 @@ router.post('/sign-up', async (req: Request, res: Response) => {
     user = await usersControllers.save(user)
     return res.status(201).json(user)
   } catch (e) {
-    return res.status(500).json({ message: "Não foi possivel criaar o usuário" })
+    return res.status(500).json({ message: "Não foi possivel criar o usuário" })
   }
 })
 

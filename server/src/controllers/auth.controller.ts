@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import * as jwt from 'jsonwebtoken'
 
 import { checkPassword } from './../utils/auth';
-import usersControllers from "./users.controllers";
+import usersControllers from "./user.controllers";
 
 class AuthController {
   async signUp(user: User) {

@@ -1,16 +1,16 @@
 import { Alert, AlertIcon, Avatar, Box, Button, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
-import { Client } from '../pages/Dashboard/Home'
+import { Customer } from '../models/customer.model'
 
 interface BoxClientsProps {
-  clients: Client[]
-  onEditing: (client: Client) => void
+  customers: Customer[]
+  onEditing: (customer: Customer) => void
 }
 
 export const BoxClients = (props: BoxClientsProps) => {
 
   return (
     <Box backgroundColor='whiteAlpha.900' boxShadow='md' borderRadius='md' p='1rem'>
-      {props.clients.length > 0 ?  <Table>
+      {props.customers.length > 0 ?  <Table>
         <Thead>
           <Tr>
             <Th>Avatar</Th>
@@ -19,7 +19,7 @@ export const BoxClients = (props: BoxClientsProps) => {
           </Tr>
         </Thead>
         <Tbody>
-          {props.clients.map((item, index) => (
+          {props.customers.map((item, index) => (
             <Tr key={index}>
               <Td><Avatar bg='green'/></Td>
               <Td>{item.name}</Td>

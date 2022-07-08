@@ -1,28 +1,40 @@
-import { Button, Container, Flex, Input, InputGroup, InputLeftElement, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Stack, Text, useDisclosure } from "@chakra-ui/react"
+import { 
+    Button, 
+    Container, 
+    Flex, 
+    Input, 
+    InputGroup, 
+    InputLeftElement, 
+    Modal, 
+    ModalBody, 
+    ModalCloseButton, 
+    ModalContent, 
+    ModalFooter, 
+    ModalHeader, 
+    ModalOverlay, 
+    Stack, 
+    Text, 
+    useDisclosure 
+} from "@chakra-ui/react"
 import { useForm } from 'react-hook-form'
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { AtSignIcon, InfoOutlineIcon, PhoneIcon } from "@chakra-ui/icons"
 
 import { Header } from "../../components/Header"
 import { SearchBar } from "../../components/SearchBar"
 import { BoxClients } from "../../components/BoxClients"
-import { AtSignIcon, InfoOutlineIcon, PhoneIcon } from "@chakra-ui/icons"
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 
-let ids = 1
+import { Customer } from "../../models/customer.model"
 
-export type Client = {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-}
+
 
 export const Home = () => {
   const ModalAddClient = useDisclosure()
   const ModalLogout = useDisclosure()
   const { register, handleSubmit, setValue } = useForm()
-  const [clients, setClients] = useState<Client[]>([])
-  const [editClients, setEditClients] = useState<Client | null>()
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [editCustomer, setEditCustomer] = useState<Customer | null>()
   const navigate = useNavigate()
   const [user, setUser] = useState<any | null>(null)
 
@@ -30,44 +42,70 @@ export const Home = () => {
     fetch('http://localhost:3001/v1/users/me', { 
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      method: 'GET'
     }).then(async (res) => {
       const json = await res.json()
       if(res.ok) {
         setUser(json.user)
       } else {
-        console.log(json.message)
+        console.log('Error', json.message)
+        doLogout()
       }
     }).catch(e => console.log(e))
+    updateList()
   },[])
+
+  const updateList = () => {
+    fetch('http://localhost:3001/v1/customers', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      method: 'GET'
+    }).then(async (res) => {
+      const json = await res.json()
+      if(res.ok) {
+        setCustomers(json.customers)
+      } else {
+        console.log('Error', json.message)
+      }
+    }).catch(e => console.log(e))
+  }
  
   const save = (data: any) => {
     ModalAddClient.onClose()
-    let clientsCopy = [...clients]
-    if (editClients) {
-      clientsCopy = clientsCopy.filter(client => client.id !== editClients.id)
-      data.id = editClients.id
-    } else {
-      data.id = ids
-      ids++
+    const method = editCustomer && editCustomer.id > 0 ? 'PUT' : 'POST'
+    if(method === 'PUT') {
+      data.id = editCustomer?.id
     }
-    console.log(data)
-    clientsCopy.push(data)
-    clientsCopy.sort((a, b) => {
-      return a.name.localeCompare(b.name)
-    })
-    setClients(clientsCopy)
-    setValue('name','')
-    setValue('email','')
-    setValue('phone','')
+    fetch('http://localhost:3001/v1/customers', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      method: method,
+      body: JSON.stringify(data)
+    }).then(async (res) => {
+      const json = await res.json()
+      if(res.ok) {
+        setValue('name','')
+        setValue('email','')
+        setValue('phone','')
+        updateList()
+      } else {
+        console.log('Error', json.message)
+      }
+    }).catch(e => console.log(e))
+
   }
 
-  const edit = (client: Client) => {
-    setEditClients(client)
-    setValue('name', client.name)
-    setValue('email', client.email)
-    setValue('phone', client.phone)
+  const edit = (customer: Customer) => {
+    setEditCustomer(customer)
+    setValue('name', customer.name)
+    setValue('email', customer.email)
+    setValue('phone', customer.phone)
     ModalAddClient.onOpen()
   }
 
@@ -98,7 +136,7 @@ export const Home = () => {
           </Button>
         </Flex>
         
-        <BoxClients clients={clients} onEditing={edit} />
+        <BoxClients customers={customers} onEditing={edit} />
       </Stack> 
      </Container> 
 

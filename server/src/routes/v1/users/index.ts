@@ -1,6 +1,6 @@
 import { User } from '@prisma/client'
 import express, { Request, Response } from 'express'
-import usersControllers from '../../../controllers/users.controllers'
+import usersControllers from '../../../controllers/user.controllers'
 
 const router = express.Router()
 

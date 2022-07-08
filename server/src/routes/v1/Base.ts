@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express'
 
-import UsersRouter from './users'
+import UserRouter from './users'
+import CustomerRouter from './customers'
 import AuthRouter from './auth'
 import { authMiddleware } from '../../middlewares/auth.middlewares'
 
@@ -12,6 +13,7 @@ router.get('/', (req: Request, res: Response) => {
 
 router.use(AuthRouter)
 router.use(authMiddleware)
-router.use(UsersRouter)
+router.use(UserRouter)
+router.use(CustomerRouter)
 
 export default router
